@@ -6,7 +6,7 @@ export default function AlertHistory({ history }) {
                 📜 Recent Alerts
             </h2>
 
-            {history.length === 0 ? (
+            {!history || history.length === 0 ? (
 
                 <p className="text-slate-400">
                     No alerts analyzed yet.
@@ -16,56 +16,71 @@ export default function AlertHistory({ history }) {
 
                 <div className="space-y-4">
 
-                    {history.map((item, index) => (
+                    {history.map((item, index) => {
 
-                        <div
-                            key={index}
-                            className="bg-slate-800 rounded-xl p-4 border border-slate-700 hover:border-cyan-500 transition-all"
-                        >
+                        // Ignore invalid/error responses
+                        if (
+                            !item ||
+                            item.status !== "success" ||
+                            !item.alert ||
+                            !item.alert.metadata ||
+                            !item.decision
+                        ) {
+                            return null;
+                        }
 
-                            <div className="flex justify-between items-center">
+                        return (
 
-                                <div>
+                            <div
+                                key={index}
+                                className="bg-slate-800 rounded-xl p-4 border border-slate-700 hover:border-cyan-500 transition-all"
+                            >
 
-                                    <h3 className="text-lg font-bold">
-                                        {item.alert.metadata.alert_name}
-                                    </h3>
+                                <div className="flex justify-between items-center">
 
-                                    <p className="text-slate-400 text-sm">
-                                        {item.alert.metadata.alert_id}
-                                    </p>
+                                    <div>
+
+                                        <h3 className="text-lg font-bold">
+                                            {item.alert.metadata.alert_name ?? "Unknown Alert"}
+                                        </h3>
+
+                                        <p className="text-slate-400 text-sm">
+                                            {item.alert.metadata.alert_id ?? "-"}
+                                        </p>
+
+                                    </div>
+
+                                    <span
+                                        className={`px-3 py-1 rounded-full text-sm font-bold ${
+                                            item.decision.decision === "Escalate"
+                                                ? "bg-red-600"
+                                                : item.decision.decision === "Investigate"
+                                                ? "bg-yellow-500 text-black"
+                                                : "bg-green-600"
+                                        }`}
+                                    >
+                                        {item.decision.decision ?? "Unknown"}
+                                    </span>
 
                                 </div>
 
-                                <span
-                                    className={`px-3 py-1 rounded-full text-sm font-bold ${
-                                        item.decision.decision === "Escalate"
-                                            ? "bg-red-600"
-                                            : item.decision.decision === "Investigate"
-                                            ? "bg-yellow-500 text-black"
-                                            : "bg-green-600"
-                                    }`}
-                                >
-                                    {item.decision.decision}
-                                </span>
+                                <div className="mt-4 flex justify-between text-sm text-slate-400">
+
+                                    <span>
+                                        Severity: {item.alert.metadata.severity ?? "-"}
+                                    </span>
+
+                                    <span>
+                                        Risk: {item.decision.risk_score ?? "-"}
+                                    </span>
+
+                                </div>
 
                             </div>
 
-                            <div className="mt-4 flex justify-between text-sm text-slate-400">
+                        );
 
-                                <span>
-                                    Severity: {item.alert.metadata.severity}
-                                </span>
-
-                                <span>
-                                    Risk: {item.decision.risk_score}
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                    ))}
+                    })}
 
                 </div>
 

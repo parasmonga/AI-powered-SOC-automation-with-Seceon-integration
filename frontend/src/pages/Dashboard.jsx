@@ -10,8 +10,14 @@ export default function Dashboard() {
     const [history, setHistory] = useState([]);
 
     const handleResult = (response) => {
+
         setResult(response);
-        setHistory((prev) => [response, ...prev]);
+
+        // Only store successful analyses
+        if (response?.status === "success") {
+            setHistory((prev) => [response, ...prev]);
+        }
+
     };
 
     return (
@@ -44,16 +50,16 @@ export default function Dashboard() {
                             🔥 Risk Summary
                         </h2>
 
-                        {result ? (
+                        {result?.status === "success" ? (
 
                             <div className="flex flex-col items-center justify-center h-72">
 
                                 <h1 className="text-8xl font-extrabold text-red-500">
-                                    {result.decision?.risk_score}
+                                    {result.decision?.risk_score ?? "--"}
                                 </h1>
 
                                 <h2 className="text-3xl font-bold mt-4">
-                                    {result.decision?.decision}
+                                    {result.decision?.decision ?? "Unknown"}
                                 </h2>
 
                                 <p className="text-slate-400 mt-3">
@@ -61,7 +67,23 @@ export default function Dashboard() {
                                 </p>
 
                                 <p className="text-xl text-cyan-400 font-semibold">
-                                    {(result.decision?.probability * 100).toFixed(2)}%
+                                    {(
+                                        (result.decision?.probability ?? 0) * 100
+                                    ).toFixed(2)}%
+                                </p>
+
+                            </div>
+
+                        ) : result?.status === "error" ? (
+
+                            <div className="flex flex-col items-center justify-center h-72">
+
+                                <h2 className="text-red-400 text-2xl font-bold">
+                                    Analysis Failed
+                                </h2>
+
+                                <p className="text-slate-400 mt-4 text-center">
+                                    {result.message}
                                 </p>
 
                             </div>
@@ -96,14 +118,14 @@ export default function Dashboard() {
                             🌍 Threat Intelligence
                         </h2>
 
-                        {result ? (
+                        {result?.status === "success" ? (
 
                             <div className="space-y-5">
 
                                 <div>
                                     <p className="text-slate-400">Reputation</p>
                                     <h3 className="text-2xl font-bold">
-                                        {result.threat?.reputation}
+                                        {result.threat?.reputation ?? "-"}
                                     </h3>
                                 </div>
 
@@ -117,7 +139,7 @@ export default function Dashboard() {
                                 <div>
                                     <p className="text-slate-400">Source IP</p>
                                     <h3 className="text-xl">
-                                        {result.threat?.ip}
+                                        {result.threat?.ip ?? "-"}
                                     </h3>
                                 </div>
 
@@ -141,28 +163,28 @@ export default function Dashboard() {
                             🎯 MITRE ATT&CK
                         </h2>
 
-                        {result ? (
+                        {result?.status === "success" ? (
 
                             <div className="space-y-5">
 
                                 <div>
                                     <p className="text-slate-400">Technique</p>
                                     <h3 className="text-2xl font-bold">
-                                        {result.mitre?.technique}
+                                        {result.mitre?.technique ?? "-"}
                                     </h3>
                                 </div>
 
                                 <div>
                                     <p className="text-slate-400">Technique ID</p>
                                     <h3 className="text-2xl font-bold">
-                                        {result.mitre?.technique_id}
+                                        {result.mitre?.technique_id ?? "-"}
                                     </h3>
                                 </div>
 
                                 <div>
                                     <p className="text-slate-400">Tactic</p>
                                     <h3 className="text-2xl font-bold">
-                                        {result.mitre?.tactic}
+                                        {result.mitre?.tactic ?? "-"}
                                     </h3>
                                 </div>
 
@@ -188,7 +210,7 @@ export default function Dashboard() {
                         🤖 AI Explanation
                     </h2>
 
-                    {result ? (
+                    {result?.status === "success" ? (
 
                         <ul className="space-y-4">
 
